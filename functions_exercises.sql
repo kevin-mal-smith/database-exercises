@@ -20,3 +20,4 @@ select min(salary), max(salary)
 from salaries;
 
 -- Use your knowledge of built in SQL functions to generate a username for all of the employees. A username should be all lowercase, and consist of the first character of the employees first name, the first 4 characters of the employees last name, an underscore, the month the employee was born, and the last two digits of the year that they were born. 
+select lower(concat(substr(first_name, 1,1), substr(last_name, 1,4), "_" , substr(birth_date, 6,2), substr(birth_date, 3,2))) as username  from employees;
