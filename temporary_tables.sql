@@ -21,12 +21,40 @@ alter table employees_with_departments drop first_name, drop last_name;
 -- Q2 Create a temporary table based on the payment table from the sakila database.
 use sakila;
 
-create temporary table kalpana_1825.payments as select * from payment;
+create temporary table kalpana_1825.payment_table as select * from payment;
 
 -- Write the SQL necessary to transform the amount column such that it is stored as an integer representing the number of cents of the payment. For example, 1.99 should become 199.
 use kalpana_1825;
-describe payments;
+describe payment_table;
 
-alter table payments modify amount decimal(8,2);
-update payments set amount = round(amount * 100);
-select amount from payments;
+alter table payment_table modify amount decimal(8,2);
+update payment_table set amount = (amount * 100);
+select amount from payment_table;
+alter table payment_table modify amount int;
+
+-- Q3 Find out how the current average pay in each department compares to the overall current pay for everyone at the company. In order to make the comparison easier, you should use the Z-score for salaries. In terms of salary, what is the best department right now to work for? The worst?
+use employees;
+drop table if exists kalpana_1825.dept_comp;
+create temporary table kalpana_1825.dept_comp as 
+select avg(salary) as avg_salary, departments.dept_name from salaries
+join dept_emp using (emp_no)
+join departments using (dept_no) 
+where salaries.to_date > now()
+and dept_emp.to_date > now()
+group by departments.dept_name
+order by avg(salary) desc;
+
+use kalpana_1825;
+
+select * from kalpana_1825.dept_comp;
+
+select * ,
+    (avg_salary - (SELECT AVG(salary) FROM employees.salaries where to_date > now()))
+    /
+    (SELECT stddev(salary) FROM employees.salaries where to_date > now()) AS zscore
+FROM kalpana_1825.dept_comp;
+
+
+
+
+
